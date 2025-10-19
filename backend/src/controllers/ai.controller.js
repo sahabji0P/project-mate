@@ -28,16 +28,8 @@ const chat = async (req, res, next) => {
             const tasks = await Task.find({ projectId }).sort({ order: 1 });
 
             context = {
-                project: {
-                    name: project.name,
-                    description: project.description,
-                },
-                tasks: tasks.map(task => ({
-                    title: task.title,
-                    description: task.description,
-                    status: task.status,
-                    priority: task.priority,
-                })),
+                project,
+                tasks,
             };
         }
 

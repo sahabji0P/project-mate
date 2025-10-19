@@ -15,28 +15,22 @@ const sendChatMessage = async (message, context = {}) => {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         // Build context prompt
-        let contextPrompt = 'You are a helpful AI assistant for a task management application called TaskMate.\n\n';
+        let contextPrompt = 'You are a helpful AI assistant named `Saathi` for a task management application called TaskMate.\nBelow is the context information, for the current project and tasks, if there are no tasks in the project then a proper response should be given to the user `BASICALLY YOU HAVE TO ACT LIKE YOU THE OWNER/MANAGER OF THAT APPLICATION WHO HAS BEEN APPOINTED TO ANSWER THE QUESTION:\n';
+
+        const project = context.project || {};
 
         if (context.project) {
-            contextPrompt += `Current Project: ${context.project.name}\n`;
-            if (context.project.description) {
-                contextPrompt += `Project Description: ${context.project.description}\n`;
-            }
+            contextPrompt += project;
         }
 
+        const tasks = context.tasks || [];
+
         if (context.tasks && context.tasks.length > 0) {
-            contextPrompt += '\nCurrent Tasks:\n';
-            context.tasks.forEach((task, index) => {
-                contextPrompt += `${index + 1}. [${task.status.toUpperCase()}] ${task.title}`;
-                if (task.description) {
-                    contextPrompt += ` - ${task.description}`;
-                }
-                contextPrompt += ` (Priority: ${task.priority})\n`;
-            });
+            contextPrompt += tasks;
         }
 
         contextPrompt += `\nUser Question: ${message}\n\n`;
-        contextPrompt += 'Please provide a helpful and concise response based on the context above.';
+        contextPrompt += 'Please provide a helpful and concise response based on the context above, make sure that your response is relevant to the user question and it must be nicely formatted in text format (no markdown).';
 
         // Generate response
         const result = await model.generateContent(contextPrompt);
