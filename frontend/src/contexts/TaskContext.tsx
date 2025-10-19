@@ -1,16 +1,9 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 import { useToast } from '../hooks/use-toast';
-import taskService, { Task as APITask, CreateTaskData, TaskStatus, UpdateTaskData } from '../services/task';
-
-// Extended Task type with frontend-only listSection property
-export type ListSection = 'today' | 'tomorrow' | 'later';
-
-export interface Task extends APITask {
-  listSection?: ListSection;
-}
+import taskService, { CreateTaskData, Task, TaskStatus, UpdateTaskData } from '../services/task';
 
 // Re-export types from service
-export type { TaskPriority, TaskStatus } from '../services/task';
+export type { ListSection, Task, TaskPriority, TaskStatus } from '../services/task';
 
 interface TaskContextType {
   tasks: Task[];

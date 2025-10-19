@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Task } from '@/contexts/TaskContext';
+import { useToast } from '@/hooks/use-toast';
+import aiService from '@/services/ai';
 import {
     Bot,
     RefreshCw,
@@ -24,14 +26,16 @@ interface AIChatProps {
     onClose: () => void;
     tasks: Task[];
     projectName: string;
+    projectId?: string;
 }
 
-export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => {
+export const AIChat = ({ isOpen, onClose, tasks, projectName, projectId }: AIChatProps) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         if (isOpen && inputRef.current) {
@@ -53,6 +57,10 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => 
         const mediumPriorityTasks = tasks.filter(t => t.priority === 'medium').length;
         const lowPriorityTasks = tasks.filter(t => t.priority === 'low').length;
 
+        const todayTasks = tasks.filter(t => t.listSection === 'today').length;
+        const tomorrowTasks = tasks.filter(t => t.listSection === 'tomorrow').length;
+        const laterTasks = tasks.filter(t => t.listSection === 'later').length;
+
         return {
             total: totalTasks,
             completed: completedTasks,
@@ -60,20 +68,39 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => 
             todo: todoTasks,
             highPriority: highPriorityTasks,
             mediumPriority: mediumPriorityTasks,
-            lowPriority: lowPriorityTasks
+            lowPriority: lowPriorityTasks,
+            today: todayTasks,
+            tomorrow: tomorrowTasks,
+            later: laterTasks
         };
     };
 
     const generateAIResponse = async (userMessage: string): Promise<string> => {
-        // Simulate AI processing delay
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+        try {
+            // Use real AI service to get response
+            const response = await aiService.sendChatMessage(userMessage, projectId);
+            return response.message;
+        } catch (error) {
+            console.error('AI chat error:', error);
 
-        const summary = getTaskSummary();
-        const lowerMessage = userMessage.toLowerCase();
+            // Fallback to local summary if API fails
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { status?: number } };
+                if (axiosError.response?.status === 401) {
+                    throw error; // Re-throw auth errors to be handled by interceptor
+                }
+            }
 
-        if (lowerMessage.includes('summary') || lowerMessage.includes('overview')) {
-            return `Here's a summary of your "${projectName}" project:\n\n` +
-                `📊 **Task Overview:**\n` +
+            toast({
+                title: 'AI Service Unavailable',
+                description: 'Showing local task summary instead.',
+                variant: 'destructive',
+            });
+
+            // Fallback to local summary
+            const summary = getTaskSummary();
+            return `Here's a local summary of your "${projectName}" project:\n\n` +
+                `� **Task Overview:**\n` +
                 `• Total Tasks: ${summary.total}\n` +
                 `• Completed: ${summary.completed} (${Math.round((summary.completed / Math.max(summary.total, 1)) * 100)}%)\n` +
                 `• In Progress: ${summary.inProgress}\n` +
@@ -81,55 +108,9 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => 
                 `🎯 **Priority Breakdown:**\n` +
                 `• High Priority: ${summary.highPriority}\n` +
                 `• Medium Priority: ${summary.mediumPriority}\n` +
-                `• Low Priority: ${summary.lowPriority}`;
+                `• Low Priority: ${summary.lowPriority}\n\n` +
+                `_Note: AI assistant is temporarily unavailable._`;
         }
-
-        if (lowerMessage.includes('high priority') || lowerMessage.includes('urgent')) {
-            const highPriorityTasks = tasks.filter(t => t.priority === 'high');
-            if (highPriorityTasks.length === 0) {
-                return "You have no high priority tasks at the moment. Great job staying on top of things! 🎉";
-            }
-            return `You have ${highPriorityTasks.length} high priority task(s):\n\n` +
-                highPriorityTasks.map(task => `• ${task.title} (${task.status})`).join('\n');
-        }
-
-        if (lowerMessage.includes('completed') || lowerMessage.includes('done')) {
-            const completedTasks = tasks.filter(t => t.status === 'done');
-            if (completedTasks.length === 0) {
-                return "No completed tasks yet. Keep working towards your goals! 💪";
-            }
-            return `You've completed ${completedTasks.length} task(s):\n\n` +
-                completedTasks.map(task => `• ${task.title}`).join('\n');
-        }
-
-        if (lowerMessage.includes('progress') || lowerMessage.includes('in progress')) {
-            const inProgressTasks = tasks.filter(t => t.status === 'in-progress');
-            if (inProgressTasks.length === 0) {
-                return "No tasks are currently in progress. Consider moving some tasks forward! 🚀";
-            }
-            return `You have ${inProgressTasks.length} task(s) in progress:\n\n` +
-                inProgressTasks.map(task => `• ${task.title}${task.priority === 'high' ? ' (High Priority)' : ''}`).join('\n');
-        }
-
-        if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
-            return `I can help you with your "${projectName}" project! Here's what I can do:\n\n` +
-                `🔍 **Ask me about:**\n` +
-                `• "Give me a summary" - Get project overview\n` +
-                `• "What are my high priority tasks?" - See urgent items\n` +
-                `• "Show completed tasks" - Review finished work\n` +
-                `• "What's in progress?" - Check active tasks\n\n` +
-                `💡 **Try asking:**\n` +
-                `• "How many tasks do I have?"\n` +
-                `• "What's my progress?"\n` +
-                `• "Which tasks need attention?"`;
-        }
-
-        // Default response for unrecognized queries
-        return `I understand you're asking about "${userMessage}". While I'm still learning about your specific project needs, I can help you with:\n\n` +
-            `• Project summaries and task overviews\n` +
-            `• Priority and status information\n` +
-            `• Progress tracking insights\n\n` +
-            `Try asking me for a "summary" or "high priority tasks" to get started! 😊`;
     };
 
     const handleSendMessage = async () => {
@@ -189,15 +170,16 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-y-0 right-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col">
+        <div className={`fixed inset-y-0 right-0 w-96 bg-background border-l border-border shadow-2xl z-40 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="flex items-center gap-2">
                     <div className="p-2 bg-primary/10 rounded-lg">
                         <Sparkles className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <h3 className="font-semibold text-sm">AI Assistant</h3>
+                        <h3 className="font-semibold text-sm">Saathi - Task Manager</h3>
                         <p className="text-xs text-muted-foreground">{projectName}</p>
                     </div>
                 </div>
@@ -271,8 +253,8 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName }: AIChatProps) => 
                                 )}
                                 <div
                                     className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${message.type === 'user'
-                                            ? 'bg-primary text-primary-foreground ml-auto'
-                                            : 'bg-muted'
+                                        ? 'bg-primary text-primary-foreground ml-auto'
+                                        : 'bg-muted'
                                         }`}
                                 >
                                     <div className="whitespace-pre-wrap">{message.content}</div>

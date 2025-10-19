@@ -58,7 +58,14 @@ const TaskBoard = () => {
     );
   }
 
-  const handleSave = async (data: { title: string; description: string; status: TaskStatus; priority?: 'high' | 'medium' | 'low'; color?: string }) => {
+  const handleSave = async (data: {
+    title: string;
+    description: string;
+    status: TaskStatus;
+    priority?: 'high' | 'medium' | 'low';
+    color?: string;
+    listSection?: ListSection;
+  }) => {
     if (!projectId) return;
 
     try {
@@ -119,11 +126,14 @@ const TaskBoard = () => {
 
   const handleListDrop = async (e: React.DragEvent, section: ListSection) => {
     e.preventDefault();
-    if (!draggedTaskId) return;
+    if (!projectId || !draggedTaskId) return;
 
-    // Note: listSection is frontend-only and not persisted to backend
-    // It's kept in local state only for UI organization
-    setDraggedTaskId(null);
+    try {
+      await updateTask(projectId, draggedTaskId, { listSection: section });
+      setDraggedTaskId(null);
+    } catch (error) {
+      // Error handling is done in TaskContext
+    }
   };
 
   const handleToggleComplete = async (id: string) => {
@@ -169,7 +179,10 @@ const TaskBoard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-[1400px] mx-auto px-6 py-8">
+      <div
+        className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'pr-[25rem]' : ''
+          }`}
+      >
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Button
@@ -269,6 +282,7 @@ const TaskBoard = () => {
           onClose={() => setAiChatOpen(false)}
           tasks={tasks}
           projectName={project.name}
+          projectId={projectId}
         />
       </div>
     </div>

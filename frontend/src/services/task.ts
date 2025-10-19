@@ -2,6 +2,7 @@ import api from './api';
 
 export type TaskStatus = 'todo' | 'in-progress' | 'done';
 export type TaskPriority = 'high' | 'medium' | 'low';
+export type ListSection = 'today' | 'tomorrow' | 'later';
 
 export interface Task {
     _id: string;
@@ -14,6 +15,7 @@ export interface Task {
     color: string;
     completed: boolean;
     order: number;
+    listSection: ListSection;
     createdAt: string;
     updatedAt: string;
 }
@@ -25,6 +27,7 @@ export interface CreateTaskData {
     priority?: TaskPriority;
     color?: string;
     order?: number;
+    listSection?: ListSection;
 }
 
 export interface UpdateTaskData {
@@ -35,6 +38,7 @@ export interface UpdateTaskData {
     color?: string;
     completed?: boolean;
     order?: number;
+    listSection?: ListSection;
 }
 
 export interface UpdateTaskStatusData {

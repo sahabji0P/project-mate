@@ -109,8 +109,8 @@ class AuthService {
         localStorage.setItem('user', JSON.stringify(authData.user));
     }
 
-    // Clear auth data from localStorage
-    private clearAuthData(): void {
+    // Clear auth data from localStorage (public for use in interceptors)
+    clearAuthData(): void {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');

@@ -59,7 +59,7 @@ export const ListViewTaskItem = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <h4 className={`text-sm font-medium text-foreground break-words ${task.completed || task.status === 'done' ? 'line-through opacity-60' : ''
+            <h4 className={`text-sm font-medium text-foreground break-words ${task.status === 'done' ? 'line-through opacity-60' : ''
               }`}>
               {task.title}
             </h4>
@@ -83,7 +83,7 @@ export const ListViewTaskItem = ({
             )}
           </div>
           {task.description && (
-            <p className={`text-xs text-muted-foreground line-clamp-2 break-words ${task.completed || task.status === 'done' ? 'line-through opacity-50' : ''
+            <p className={`text-xs text-muted-foreground line-clamp-2 break-words ${task.status === 'done' ? 'line-through opacity-50' : ''
               }`}>
               {task.description}
             </p>

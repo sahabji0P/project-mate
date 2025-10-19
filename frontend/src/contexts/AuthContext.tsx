@@ -145,25 +145,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
         try {
-            // Check if user is authenticated
-            if (authService.isAuthenticated()) {
-                const storedUser = authService.getStoredUser();
+            setIsLoading(true);
 
-                if (storedUser) {
+            // Check if we have tokens
+            const accessToken = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            if (!accessToken || !refreshToken) {
+                // No tokens, user is not authenticated
+                setIsLoading(false);
+                return;
+            }
+
+            // Try to get stored user first (immediate UI update)
+            const storedUser = authService.getStoredUser();
+            if (storedUser) {
+                setUser(storedUser);
+            }
+
+            // Then fetch fresh user data
+            try {
+                const freshUser = await authService.getProfile();
+                setUser(freshUser);
+            } catch (error: any) {
+                console.error('Failed to fetch user profile:', error);
+
+                // If we get a 401, the interceptor should have tried to refresh
+                // If we still get here, both tokens are invalid
+                if (error.response?.status === 401) {
+                    // Clear everything and stay logged out
+                    setUser(null);
+                    authService.clearAuthData();
+                } else if (storedUser) {
+                    // For other errors, keep the stored user (offline-first approach)
                     setUser(storedUser);
-
-                    // Fetch fresh user data
-                    try {
-                        const freshUser = await authService.getProfile();
-                        setUser(freshUser);
-                    } catch (error) {
-                        // If fetching fails, keep stored user
-                        console.error('Failed to fetch user profile:', error);
-                    }
                 }
             }
         } catch (error) {
             console.error('Auth initialization error:', error);
+            setUser(null);
         } finally {
             setIsLoading(false);
         }

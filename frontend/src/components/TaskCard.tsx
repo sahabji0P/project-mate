@@ -41,7 +41,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onToggleComplete, onDragStart
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <h4 className={`text-sm font-medium text-foreground break-words flex-1 ${task.status === 'done' || task.completed ? 'line-through opacity-60' : ''
+            <h4 className={`text-sm font-medium text-foreground break-words flex-1 ${task.status === 'done' ? 'line-through opacity-60' : ''
               }`}>
               {task.title}
             </h4>
@@ -64,7 +64,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onToggleComplete, onDragStart
             )}
           </div>
           {task.description && (
-            <p className={`text-xs text-muted-foreground line-clamp-3 break-words ${task.status === 'done' || task.completed ? 'line-through opacity-50' : ''
+            <p className={`text-xs text-muted-foreground line-clamp-3 break-words ${task.status === 'done' ? 'line-through opacity-50' : ''
               }`}>
               {task.description}
             </p>

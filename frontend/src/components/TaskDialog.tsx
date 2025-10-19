@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Task, TaskStatus } from '@/contexts/TaskContext';
+import { ListSection, Task, TaskStatus } from '@/contexts/TaskContext';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -26,7 +26,14 @@ interface TaskDialogProps {
   onOpenChange: (open: boolean) => void;
   task?: Task | null;
   defaultStatus?: TaskStatus;
-  onSave: (data: { title: string; description: string; status: TaskStatus; priority?: 'high' | 'medium' | 'low'; color?: string }) => void;
+  onSave: (data: {
+    title: string;
+    description: string;
+    status: TaskStatus;
+    priority?: 'high' | 'medium' | 'low';
+    color?: string;
+    listSection?: ListSection;
+  }) => void;
 }
 
 const COLORS = [
@@ -46,12 +53,19 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
   'done': 'Done',
 };
 
+const LIST_SECTION_LABELS: Record<ListSection, string> = {
+  'today': 'Today',
+  'tomorrow': 'Tomorrow',
+  'later': 'Later',
+};
+
 export const TaskDialog = ({ open, onOpenChange, task, defaultStatus, onSave }: TaskDialogProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<TaskStatus>(defaultStatus || 'todo');
   const [priority, setPriority] = useState<'high' | 'medium' | 'low' | 'none'>('none');
   const [color, setColor] = useState('');
+  const [listSection, setListSection] = useState<ListSection>('today');
 
   useEffect(() => {
     if (task) {
@@ -60,12 +74,14 @@ export const TaskDialog = ({ open, onOpenChange, task, defaultStatus, onSave }: 
       setStatus(task.status);
       setPriority(task.priority || 'none');
       setColor(task.color || '');
+      setListSection(task.listSection || 'today');
     } else {
       setTitle('');
       setDescription('');
       setStatus(defaultStatus || 'todo');
       setPriority('none');
       setColor('');
+      setListSection('today');
     }
   }, [task, defaultStatus, open]);
 
@@ -77,7 +93,8 @@ export const TaskDialog = ({ open, onOpenChange, task, defaultStatus, onSave }: 
         description,
         status,
         priority: priority === 'none' ? undefined : priority,
-        color: color || undefined
+        color: color || undefined,
+        listSection
       });
       onOpenChange(false);
     }
@@ -142,6 +159,22 @@ export const TaskDialog = ({ open, onOpenChange, task, defaultStatus, onSave }: 
                   <SelectItem value="high">High Priority</SelectItem>
                   <SelectItem value="medium">Medium Priority</SelectItem>
                   <SelectItem value="low">Low Priority</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="listSection">List Section</Label>
+              <Select value={listSection} onValueChange={(value) => setListSection(value as ListSection)}>
+                <SelectTrigger id="listSection">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(LIST_SECTION_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
