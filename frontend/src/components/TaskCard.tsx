@@ -23,7 +23,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onToggleComplete, onDragStart
   return (
     <div
       draggable
-      onDragStart={(e) => onDragStart(e, task.id)}
+      onDragStart={(e) => onDragStart(e, task._id)}
       className={`group bg-card border-l-4 border-t border-r border-b rounded-lg p-4 mb-3 cursor-move transition-all duration-300 hover:border-foreground/20 hover:shadow-md animate-fade-in ${isDragging ? 'opacity-50 scale-95' : 'opacity-100'
         }`}
       style={{ borderLeftColor: task.color || 'transparent' }}
@@ -35,7 +35,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onToggleComplete, onDragStart
 
         <Checkbox
           checked={task.completed || task.status === 'done'}
-          onCheckedChange={() => onToggleComplete(task.id)}
+          onCheckedChange={() => onToggleComplete(task._id)}
           className="mt-0.5"
         />
 
@@ -92,7 +92,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onToggleComplete, onDragStart
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(task.id);
+                onDelete(task._id);
               }}
               className="text-destructive"
             >

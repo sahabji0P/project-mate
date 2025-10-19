@@ -41,7 +41,7 @@ export const ListViewTaskItem = ({
   return (
     <div
       draggable
-      onDragStart={(e) => onDragStart(e, task.id)}
+      onDragStart={(e) => onDragStart(e, task._id)}
       className={`group bg-card border-l-4 border-t border-r border-b rounded-lg p-3 mb-2 cursor-move transition-all duration-300 hover:border-foreground/20 hover:shadow-sm animate-fade-in ${isDragging ? 'opacity-50 scale-95' : 'opacity-100'
         }`}
       style={{ borderLeftColor: task.color || 'transparent' }}
@@ -53,7 +53,7 @@ export const ListViewTaskItem = ({
 
         <Checkbox
           checked={task.completed || task.status === 'done'}
-          onCheckedChange={() => onToggleComplete(task.id)}
+          onCheckedChange={() => onToggleComplete(task._id)}
           className="mt-0.5"
         />
 
@@ -111,7 +111,7 @@ export const ListViewTaskItem = ({
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(task.id);
+                onDelete(task._id);
               }}
               className="text-destructive"
             >

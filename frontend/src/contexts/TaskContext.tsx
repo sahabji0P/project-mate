@@ -1,76 +1,184 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
+import { useToast } from '../hooks/use-toast';
+import taskService, { Task as APITask, CreateTaskData, TaskStatus, UpdateTaskData } from '../services/task';
 
-export type TaskStatus = 'todo' | 'in-progress' | 'done';
+// Extended Task type with frontend-only listSection property
 export type ListSection = 'today' | 'tomorrow' | 'later';
 
-export interface Task {
-  id: string;
-  projectId: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
+export interface Task extends APITask {
   listSection?: ListSection;
-  completed?: boolean;
-  priority?: 'high' | 'medium' | 'low';
-  color?: string;
-  createdAt: string;
 }
+
+// Re-export types from service
+export type { TaskPriority, TaskStatus } from '../services/task';
 
 interface TaskContextType {
   tasks: Task[];
+  isLoading: boolean;
   getTasksByProject: (projectId: string) => Task[];
-  addTask: (task: Omit<Task, 'id' | 'createdAt'>) => void;
-  updateTask: (id: string, task: Partial<Omit<Task, 'id' | 'createdAt' | 'projectId'>>) => void;
-  deleteTask: (id: string) => void;
-  moveTask: (id: string, status: TaskStatus) => void;
+  fetchTasksForProject: (projectId: string) => Promise<void>;
+  addTask: (projectId: string, data: CreateTaskData) => Promise<void>;
+  updateTask: (projectId: string, taskId: string, data: UpdateTaskData) => Promise<void>;
+  deleteTask: (projectId: string, taskId: string) => Promise<void>;
+  moveTask: (projectId: string, taskId: string, status: TaskStatus) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
-export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const stored = localStorage.getItem('tasks');
-    return stored ? JSON.parse(stored) : [];
-  });
+export const useTasks = () => {
+  const context = useContext(TaskContext);
+  if (!context) {
+    throw new Error('useTasks must be used within TaskProvider');
+  }
+  return context;
+};
 
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+interface TaskProviderProps {
+  children: ReactNode;
+}
 
-  const getTasksByProject = (projectId: string) => {
+export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  // Get tasks for a specific project from state
+  const getTasksByProject = (projectId: string): Task[] => {
     return tasks.filter(task => task.projectId === projectId);
   };
 
-  const addTask = (task: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = {
-      ...task,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    setTasks(prev => [newTask, ...prev]);
+  // Fetch tasks for a project from API
+  const fetchTasksForProject = async (projectId: string) => {
+    try {
+      setIsLoading(true);
+      const fetchedTasks = await taskService.getTasks(projectId);
+
+      // Replace tasks for this project while keeping tasks from other projects
+      setTasks(prev => [
+        ...prev.filter(t => t.projectId !== projectId),
+        ...fetchedTasks
+      ]);
+    } catch (error: any) {
+      console.error('Failed to fetch tasks:', error);
+      toast({
+        title: 'Error',
+        description: error.response?.data?.error || 'Failed to load tasks',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const updateTask = (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt' | 'projectId'>>) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  // Add a new task
+  const addTask = async (projectId: string, data: CreateTaskData) => {
+    try {
+      setIsLoading(true);
+      const newTask = await taskService.createTask(projectId, data);
+      setTasks(prev => [newTask, ...prev]);
+      toast({
+        title: 'Success',
+        description: 'Task created successfully',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to create task';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+  // Update a task
+  const updateTask = async (projectId: string, taskId: string, data: UpdateTaskData) => {
+    try {
+      setIsLoading(true);
+      const updatedTask = await taskService.updateTask(projectId, taskId, data);
+      setTasks(prev =>
+        prev.map(task => (task._id === taskId ? updatedTask : task))
+      );
+      toast({
+        title: 'Success',
+        description: 'Task updated successfully',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to update task';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const moveTask = (id: string, status: TaskStatus) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t));
+  // Delete a task
+  const deleteTask = async (projectId: string, taskId: string) => {
+    try {
+      setIsLoading(true);
+      await taskService.deleteTask(projectId, taskId);
+      setTasks(prev => prev.filter(task => task._id !== taskId));
+      toast({
+        title: 'Success',
+        description: 'Task deleted successfully',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Failed to delete task';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  return (
-    <TaskContext.Provider value={{ tasks, getTasksByProject, addTask, updateTask, deleteTask, moveTask }}>
-      {children}
-    </TaskContext.Provider>
-  );
-};
+  // Move task to different status (drag and drop)
+  const moveTask = async (projectId: string, taskId: string, status: TaskStatus) => {
+    try {
+      // Optimistic update
+      setTasks(prev =>
+        prev.map(task => (task._id === taskId ? { ...task, status } : task))
+      );
 
-export const useTasks = () => {
-  const context = useContext(TaskContext);
-  if (!context) throw new Error('useTasks must be used within TaskProvider');
-  return context;
+      await taskService.updateTaskStatus(projectId, taskId, status);
+
+      toast({
+        title: 'Success',
+        description: 'Task status updated',
+      });
+    } catch (error: any) {
+      // Revert on error by refetching
+      await fetchTasksForProject(projectId);
+
+      const message = error.response?.data?.error || 'Failed to update task status';
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
+  const value: TaskContextType = {
+    tasks,
+    isLoading,
+    getTasksByProject,
+    fetchTasksForProject,
+    addTask,
+    updateTask,
+    deleteTask,
+    moveTask,
+  };
+
+  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };

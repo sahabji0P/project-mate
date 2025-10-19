@@ -6,10 +6,9 @@ import { TaskDialog } from '@/components/TaskDialog';
 import { Button } from '@/components/ui/button';
 import { useProjects } from '@/contexts/ProjectContext';
 import { ListSection, Task, TaskStatus, useTasks } from '@/contexts/TaskContext';
-import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, LayoutGrid, List, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const STATUS_COLUMNS: { title: string; status: TaskStatus }[] = [
   { title: 'To Do', status: 'todo' },
@@ -24,11 +23,11 @@ const LIST_SECTIONS: { title: string; section: ListSection }[] = [
 ];
 
 const TaskBoard = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('project');
   const navigate = useNavigate();
   const { projects } = useProjects();
-  const { getTasksByProject, addTask, updateTask, deleteTask, moveTask } = useTasks();
-  const { toast } = useToast();
+  const { getTasksByProject, fetchTasksForProject, addTask, updateTask, deleteTask, moveTask, isLoading } = useTasks();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -37,8 +36,16 @@ const TaskBoard = () => {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [aiChatOpen, setAiChatOpen] = useState(false);
 
-  const project = projects.find(p => p.id === projectId);
+  const project = projects.find(p => p._id === projectId);
   const tasks = projectId ? getTasksByProject(projectId) : [];
+
+  // Fetch tasks when component mounts or projectId changes
+  useEffect(() => {
+    if (projectId) {
+      fetchTasksForProject(projectId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   if (!project) {
     return (
@@ -51,15 +58,20 @@ const TaskBoard = () => {
     );
   }
 
-  const handleSave = (data: { title: string; description: string; status: TaskStatus; priority?: 'high' | 'medium' | 'low'; color?: string }) => {
-    if (editingTask) {
-      updateTask(editingTask.id, data);
-      toast({ title: 'Task updated', description: 'Your task has been updated successfully.' });
-    } else {
-      addTask({ ...data, projectId: projectId! });
-      toast({ title: 'Task created', description: 'Your new task has been created successfully.' });
+  const handleSave = async (data: { title: string; description: string; status: TaskStatus; priority?: 'high' | 'medium' | 'low'; color?: string }) => {
+    if (!projectId) return;
+
+    try {
+      if (editingTask) {
+        await updateTask(projectId, editingTask._id, data);
+      } else {
+        await addTask(projectId, data);
+      }
+      setDialogOpen(false);
+      setEditingTask(null);
+    } catch (error) {
+      // Error handling is done in TaskContext
     }
-    setEditingTask(null);
   };
 
   const handleEdit = (task: Task) => {
@@ -67,9 +79,14 @@ const TaskBoard = () => {
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    deleteTask(id);
-    toast({ title: 'Task deleted', description: 'The task has been removed.' });
+  const handleDelete = async (id: string) => {
+    if (!projectId) return;
+
+    try {
+      await deleteTask(projectId, id);
+    } catch (error) {
+      // Error handling is done in TaskContext
+    }
   };
 
   const handleAddTask = (status: TaskStatus) => {
@@ -88,24 +105,31 @@ const TaskBoard = () => {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, status: TaskStatus) => {
+  const handleDrop = async (e: React.DragEvent, status: TaskStatus) => {
     e.preventDefault();
-    if (draggedTaskId) {
-      moveTask(draggedTaskId, status);
+    if (!projectId || !draggedTaskId) return;
+
+    try {
+      await moveTask(projectId, draggedTaskId, status);
       setDraggedTaskId(null);
+    } catch (error) {
+      // Error handling is done in TaskContext
     }
   };
 
-  const handleListDrop = (e: React.DragEvent, section: ListSection) => {
+  const handleListDrop = async (e: React.DragEvent, section: ListSection) => {
     e.preventDefault();
-    if (draggedTaskId) {
-      updateTask(draggedTaskId, { listSection: section });
-      setDraggedTaskId(null);
-    }
+    if (!draggedTaskId) return;
+
+    // Note: listSection is frontend-only and not persisted to backend
+    // It's kept in local state only for UI organization
+    setDraggedTaskId(null);
   };
 
-  const handleToggleComplete = (id: string) => {
-    const task = tasks.find(t => t.id === id);
+  const handleToggleComplete = async (id: string) => {
+    if (!projectId) return;
+
+    const task = tasks.find(t => t._id === id);
     if (task) {
       let newStatus: TaskStatus;
       let newCompleted: boolean;
@@ -132,10 +156,14 @@ const TaskBoard = () => {
         }
       }
 
-      updateTask(id, {
-        completed: newCompleted,
-        status: newStatus
-      });
+      try {
+        await updateTask(projectId, id, {
+          completed: newCompleted,
+          status: newStatus
+        });
+      } catch (error) {
+        // Error handling is done in TaskContext
+      }
     }
   };
 

@@ -93,13 +93,13 @@ export const TaskColumn = ({
         )}
         {tasks.map((task) => (
           <TaskCard
-            key={task.id}
+            key={task._id}
             task={task}
             onEdit={onEdit}
             onDelete={onDelete}
             onToggleComplete={onToggleComplete}
             onDragStart={onDragStart}
-            isDragging={draggedTaskId === task.id}
+            isDragging={draggedTaskId === task._id}
           />
         ))}
       </div>

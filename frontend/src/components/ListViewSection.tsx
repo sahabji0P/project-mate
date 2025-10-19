@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { Task, ListSection } from '@/contexts/TaskContext';
 import { ListViewTaskItem } from '@/components/ListViewTaskItem';
-import { ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { ListSection, Task } from '@/contexts/TaskContext';
+import { ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 interface ListViewSectionProps {
   title: string;
@@ -39,8 +39,8 @@ export const ListViewSection = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const [showCompleted, setShowCompleted] = useState(true);
 
-  const filteredTasks = showCompleted 
-    ? tasks 
+  const filteredTasks = showCompleted
+    ? tasks
     : tasks.filter(task => task.status !== 'done' && !task.completed);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -71,7 +71,7 @@ export const ListViewSection = ({
             {filteredTasks.length}/{tasks.length}
           </span>
         </CollapsibleTrigger>
-        
+
         <div className="flex items-center gap-2 ml-2">
           <Label htmlFor={`show-completed-${section}`} className="text-xs text-muted-foreground cursor-pointer">
             {showCompleted ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -84,15 +84,14 @@ export const ListViewSection = ({
           />
         </div>
       </div>
-      
+
       <CollapsibleContent className="mt-2">
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`min-h-[100px] p-2 rounded-md transition-all duration-200 ${
-            isDragOver ? 'bg-accent/50 ring-2 ring-accent-foreground/20' : ''
-          }`}
+          className={`min-h-[100px] p-2 rounded-md transition-all duration-200 ${isDragOver ? 'bg-accent/50 ring-2 ring-accent-foreground/20' : ''
+            }`}
         >
           {filteredTasks.length === 0 ? (
             <div className="flex items-center justify-center h-20 text-xs text-muted-foreground">
@@ -101,13 +100,13 @@ export const ListViewSection = ({
           ) : (
             filteredTasks.map((task) => (
               <ListViewTaskItem
-                key={task.id}
+                key={task._id}
                 task={task}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onToggleComplete={onToggleComplete}
                 onDragStart={onDragStart}
-                isDragging={draggedTaskId === task.id}
+                isDragging={draggedTaskId === task._id}
               />
             ))
           )}
