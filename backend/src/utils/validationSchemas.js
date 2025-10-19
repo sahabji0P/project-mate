@@ -36,6 +36,7 @@ const createTaskSchema = Joi.object({
     priority: Joi.string().valid('high', 'medium', 'low').default('medium'),
     color: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).default('#3b82f6'),
     order: Joi.number().integer().min(0).default(0),
+    listSection: Joi.string().valid('today', 'tomorrow', 'later').default('today'),
 });
 
 const updateTaskSchema = Joi.object({
@@ -46,6 +47,7 @@ const updateTaskSchema = Joi.object({
     color: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/),
     completed: Joi.boolean(),
     order: Joi.number().integer().min(0),
+    listSection: Joi.string().valid('today', 'tomorrow', 'later'),
 }).min(1);
 
 const updateTaskStatusSchema = Joi.object({

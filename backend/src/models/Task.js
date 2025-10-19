@@ -56,6 +56,14 @@ const taskSchema = new mongoose.Schema({
         default: 0,
         min: 0,
     },
+    listSection: {
+        type: String,
+        enum: {
+            values: ['today', 'tomorrow', 'later'],
+            message: '{VALUE} is not a valid list section',
+        },
+        default: 'today',
+    },
 }, {
     timestamps: true,
 });
