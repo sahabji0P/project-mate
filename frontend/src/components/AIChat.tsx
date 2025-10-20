@@ -170,151 +170,162 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName, projectId }: AICha
     if (!isOpen) return null;
 
     return (
-        <div className={`fixed top-16 bottom-0 right-0 w-96 bg-background border-l border-border shadow-2xl z-30 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
-            }`}>
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <Sparkles className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-sm">Saathi - Task Manager</h3>
-                        <p className="text-xs text-muted-foreground">{projectName}</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={clearChat}
-                        className="h-8 w-8"
-                        title="Clear chat"
-                    >
-                        <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={onClose}
-                        className="h-8 w-8"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
-                </div>
-            </div>
+        <>
+            {/* Backdrop overlay for mobile - click to close */}
+            <div
+                className="fixed inset-0 bg-black/50 z-20 md:hidden"
+                onClick={onClose}
+                aria-label="Close AI chat"
+            />
 
-            {/* Quick Actions */}
-            {messages.length === 0 && (
-                <div className="p-4 border-b border-border">
-                    <p className="text-xs text-muted-foreground mb-3">Quick actions:</p>
-                    <div className="grid grid-cols-2 gap-2">
-                        {quickActions.map((action, index) => (
-                            <Button
-                                key={index}
-                                variant="outline"
-                                size="sm"
-                                className="text-xs h-8"
-                                onClick={() => setInputValue(action.query)}
-                            >
-                                {action.label}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Messages */}
-            <ScrollArea className="flex-1 p-4">
-                {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
-                        <div className="p-4 bg-primary/5 rounded-full mb-4">
-                            <Bot className="h-8 w-8 text-primary" />
+            {/* AI Chat Panel */}
+            <div className={`fixed top-16 bottom-0 right-0 w-full md:w-96 bg-background border-l border-border shadow-2xl z-30 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                }`}>
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                    <div className="flex items-center gap-2">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                            <Sparkles className="h-5 w-5 text-primary" />
                         </div>
-                        <h4 className="font-medium mb-2">AI Assistant Ready</h4>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Ask me anything about your project tasks and progress.
-                        </p>
-                        <div className="text-xs text-muted-foreground">
-                            <p>Try: "Give me a summary" or "What are my high priority tasks?"</p>
+                        <div>
+                            <h3 className="font-semibold text-sm">Saathi - Task Manager</h3>
+                            <p className="text-xs text-muted-foreground">{projectName}</p>
                         </div>
                     </div>
-                ) : (
-                    <div className="space-y-4">
-                        {messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                            >
-                                {message.type === 'ai' && (
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={clearChat}
+                            className="h-8 w-8 hidden md:flex"
+                            title="Clear chat"
+                        >
+                            <RefreshCw className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={onClose}
+                            className="h-9 w-9 md:h-8 md:w-8"
+                            title="Close AI Assistant"
+                        >
+                            <X className="h-5 w-5 md:h-4 md:w-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Quick Actions */}
+                {messages.length === 0 && (
+                    <div className="p-4 border-b border-border">
+                        <p className="text-xs text-muted-foreground mb-3">Quick actions:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                            {quickActions.map((action, index) => (
+                                <Button
+                                    key={index}
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-xs h-8"
+                                    onClick={() => setInputValue(action.query)}
+                                >
+                                    {action.label}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Messages */}
+                <ScrollArea className="flex-1 p-4">
+                    {messages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                            <div className="p-4 bg-primary/5 rounded-full mb-4">
+                                <Bot className="h-8 w-8 text-primary" />
+                            </div>
+                            <h4 className="font-medium mb-2">Your Task Saathi Ready</h4>
+                            <p className="text-sm text-muted-foreground mb-4">
+                                Ask me anything about your project tasks and progress.
+                            </p>
+                            <div className="text-xs text-muted-foreground">
+                                <p>Try: "Give me a summary" or "What are my high priority tasks?"</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {messages.map((message) => (
+                                <div
+                                    key={message.id}
+                                    className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                    {message.type === 'ai' && (
+                                        <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                            <Bot className="h-4 w-4 text-primary" />
+                                        </div>
+                                    )}
+                                    <div
+                                        className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${message.type === 'user'
+                                            ? 'bg-primary text-primary-foreground ml-auto'
+                                            : 'bg-muted'
+                                            }`}
+                                    >
+                                        <div className="whitespace-pre-wrap">{message.content}</div>
+                                        <div
+                                            className={`text-xs mt-1 opacity-70 ${message.type === 'user' ? 'text-primary-foreground' : 'text-muted-foreground'
+                                                }`}
+                                        >
+                                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                    {message.type === 'user' && (
+                                        <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                                            <User className="h-4 w-4 text-primary-foreground" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="flex gap-3">
                                     <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                                         <Bot className="h-4 w-4 text-primary" />
                                     </div>
-                                )}
-                                <div
-                                    className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${message.type === 'user'
-                                        ? 'bg-primary text-primary-foreground ml-auto'
-                                        : 'bg-muted'
-                                        }`}
-                                >
-                                    <div className="whitespace-pre-wrap">{message.content}</div>
-                                    <div
-                                        className={`text-xs mt-1 opacity-70 ${message.type === 'user' ? 'text-primary-foreground' : 'text-muted-foreground'
-                                            }`}
-                                    >
-                                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    <div className="bg-muted rounded-lg px-3 py-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"></div>
+                                            <span className="text-sm text-muted-foreground">Thinking...</span>
+                                        </div>
                                     </div>
                                 </div>
-                                {message.type === 'user' && (
-                                    <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                                        <User className="h-4 w-4 text-primary-foreground" />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                        {isLoading && (
-                            <div className="flex gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                                    <Bot className="h-4 w-4 text-primary" />
-                                </div>
-                                <div className="bg-muted rounded-lg px-3 py-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent"></div>
-                                        <span className="text-sm text-muted-foreground">Thinking...</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
-            </ScrollArea>
+                            )}
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
+                </ScrollArea>
 
-            {/* Input */}
-            <div className="p-4 border-t border-border">
-                <div className="flex gap-2">
-                    <Input
-                        ref={inputRef}
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Ask about your tasks..."
-                        disabled={isLoading}
-                        className="flex-1"
-                    />
-                    <Button
-                        onClick={handleSendMessage}
-                        disabled={!inputValue.trim() || isLoading}
-                        size="icon"
-                        className="flex-shrink-0"
-                    >
-                        <Send className="h-4 w-4" />
-                    </Button>
+                {/* Input */}
+                <div className="p-4 border-t border-border">
+                    <div className="flex gap-2">
+                        <Input
+                            ref={inputRef}
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Ask about your tasks..."
+                            disabled={isLoading}
+                            className="flex-1"
+                        />
+                        <Button
+                            onClick={handleSendMessage}
+                            disabled={!inputValue.trim() || isLoading}
+                            size="icon"
+                            className="flex-shrink-0"
+                        >
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                        Ask about summaries, priorities, progress, or any task-related questions.
+                    </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                    Ask about summaries, priorities, progress, or any task-related questions.
-                </p>
             </div>
-        </div>
+        </>
     );
 };

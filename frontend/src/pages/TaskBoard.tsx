@@ -189,7 +189,7 @@ const TaskBoard = () => {
 
       <div className="min-h-screen bg-background">
         <div
-          className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'pr-[25rem]' : ''
+          className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'md:pr-[25rem]' : ''
             }`}
         >
           {viewMode === 'kanban' ? (

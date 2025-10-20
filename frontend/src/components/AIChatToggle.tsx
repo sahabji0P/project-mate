@@ -12,7 +12,9 @@ export const AIChatToggle = ({ onClick, isOpen }: AIChatToggleProps) => {
             onClick={onClick}
             variant={isOpen ? "secondary" : "outline"}
             size="icon"
-            className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-29 transition-all duration-300 ${isOpen ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-accent'
+            className={`fixed bottom-6 h-14 w-14 rounded-full shadow-lg z-40 transition-all duration-300 ${isOpen
+                    ? 'right-6 md:right-[25rem] bg-primary text-primary-foreground'
+                    : 'right-6 bg-background hover:bg-accent'
                 }`}
             title={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
         >
