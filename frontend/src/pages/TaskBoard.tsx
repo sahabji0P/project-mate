@@ -193,23 +193,22 @@ const TaskBoard = () => {
             }`}
         >
           {viewMode === 'kanban' ? (
-            <div className="flex gap-6 overflow-x-auto pb-4">
-              {STATUS_COLUMNS.map(({ title, status }) => (
-                <TaskColumn
-                  key={status}
-                  title={title}
-                  status={status}
-                  tasks={tasks.filter(t => t.status === status)}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleComplete={handleToggleComplete}
-                  onDragStart={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onAddTask={handleAddTask}
-                  draggedTaskId={draggedTaskId}
-                />
-              ))}
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 md:overflow-x-auto pb-4">              {STATUS_COLUMNS.map(({ title, status }) => (
+              <TaskColumn
+                key={status}
+                title={title}
+                status={status}
+                tasks={tasks.filter(t => t.status === status)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleComplete={handleToggleComplete}
+                onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onAddTask={handleAddTask}
+                draggedTaskId={draggedTaskId}
+              />
+            ))}
             </div>
           ) : (
             <div className="max-w-3xl">

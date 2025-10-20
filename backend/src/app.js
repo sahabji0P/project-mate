@@ -15,6 +15,8 @@ const taskRoutes = require('./routes/task.route');
 const aiRoutes = require('./routes/ai.routes');
 
 const app = express();
+app.set('trust proxy', 1);
+
 
 // Connect to database
 connectDB();

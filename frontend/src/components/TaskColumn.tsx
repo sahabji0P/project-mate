@@ -61,7 +61,7 @@ export const TaskColumn = ({
   };
 
   return (
-    <div className={`flex-1 min-w-[280px] ${getColumnColor()} rounded-lg p-4 transition-all duration-300`}>
+    <div className={`flex-1 w-full md:min-w-[280px] ${getColumnColor()} rounded-lg p-4 transition-all duration-300`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-medium text-foreground">{title}</h3>
