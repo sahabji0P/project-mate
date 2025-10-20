@@ -36,8 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-    windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000,
-    max: process.env.RATE_LIMIT_MAX_REQUESTS || 100,
+    windowMs: (process.env.RATE_LIMIT_WINDOW || 10) * 60 * 1000,
+    max: process.env.RATE_LIMIT_MAX_REQUESTS || 50,
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
