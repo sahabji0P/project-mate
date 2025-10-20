@@ -1,22 +1,14 @@
-# Welcome to your Lovable project
+# Task Mate
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/e6a34233-38ac-4080-9700-dead40d4b751
+Task Mate - Your Personal Task Management Companion
 
 ## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/e6a34233-38ac-4080-9700-dead40d4b751) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+You can clone this repo and push changes to work on Task Mate locally.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -62,12 +54,4 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/e6a34233-38ac-4080-9700-dead40d4b751) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+You can deploy Task Mate using various hosting services like Vercel, Netlify, or any Node.js hosting platform.

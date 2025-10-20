@@ -170,7 +170,7 @@ export const AIChat = ({ isOpen, onClose, tasks, projectName, projectId }: AICha
     if (!isOpen) return null;
 
     return (
-        <div className={`fixed inset-y-0 right-0 w-96 bg-background border-l border-border shadow-2xl z-40 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        <div className={`fixed top-16 bottom-0 right-0 w-96 bg-background border-l border-border shadow-2xl z-30 flex flex-col transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
             }`}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

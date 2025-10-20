@@ -1,12 +1,12 @@
 import { AIChat } from '@/components/AIChat';
 import { AIChatToggle } from '@/components/AIChatToggle';
+import { TaskBoardHeader } from '@/components/layout/TaskBoardHeader';
 import { ListViewSection } from '@/components/ListViewSection';
 import { TaskColumn } from '@/components/TaskColumn';
 import { TaskDialog } from '@/components/TaskDialog';
 import { Button } from '@/components/ui/button';
 import { useProjects } from '@/contexts/ProjectContext';
 import { ListSection, Task, TaskStatus, useTasks } from '@/contexts/TaskContext';
-import { ArrowLeft, LayoutGrid, List, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -178,114 +178,82 @@ const TaskBoard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div
-        className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'pr-[25rem]' : ''
-          }`}
-      >
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/')}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-light text-foreground mb-1">{project.name}</h1>
-              <p className="text-sm text-muted-foreground">{project.description}</p>
+    <>
+      <TaskBoardHeader
+        projectName={project.name}
+        projectDescription={project.description}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onAddTask={() => handleAddTask('todo')}
+      />
+
+      <div className="min-h-screen bg-background">
+        <div
+          className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'pr-[25rem]' : ''
+            }`}
+        >
+          {viewMode === 'kanban' ? (
+            <div className="flex gap-6 overflow-x-auto pb-4">
+              {STATUS_COLUMNS.map(({ title, status }) => (
+                <TaskColumn
+                  key={status}
+                  title={title}
+                  status={status}
+                  tasks={tasks.filter(t => t.status === status)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onToggleComplete={handleToggleComplete}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onAddTask={handleAddTask}
+                  draggedTaskId={draggedTaskId}
+                />
+              ))}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button
-                variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('kanban')}
-                className="gap-2"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                Kanban
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="gap-2"
-              >
-                <List className="h-4 w-4" />
-                List
-              </Button>
+          ) : (
+            <div className="max-w-3xl">
+              {LIST_SECTIONS.map(({ title, section }) => (
+                <ListViewSection
+                  key={section}
+                  title={title}
+                  section={section}
+                  tasks={tasks.filter(t => (t.listSection || 'today') === section)}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onToggleComplete={handleToggleComplete}
+                  onDragStart={handleDragStart}
+                  onDragOver={handleDragOver}
+                  onDrop={handleListDrop}
+                  draggedTaskId={draggedTaskId}
+                />
+              ))}
             </div>
-            <Button onClick={() => handleAddTask('todo')} className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Task
-            </Button>
-          </div>
+          )}
+
+          <TaskDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            task={editingTask}
+            defaultStatus={defaultStatus}
+            onSave={handleSave}
+          />
+
+          {/* AI Chat Components */}
+          <AIChatToggle
+            onClick={() => setAiChatOpen(!aiChatOpen)}
+            isOpen={aiChatOpen}
+          />
+          <AIChat
+            isOpen={aiChatOpen}
+            onClose={() => setAiChatOpen(false)}
+            tasks={tasks}
+            projectName={project.name}
+            projectId={projectId}
+          />
         </div>
-
-        {viewMode === 'kanban' ? (
-          <div className="flex gap-6 overflow-x-auto pb-4">
-            {STATUS_COLUMNS.map(({ title, status }) => (
-              <TaskColumn
-                key={status}
-                title={title}
-                status={status}
-                tasks={tasks.filter(t => t.status === status)}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onToggleComplete={handleToggleComplete}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onAddTask={handleAddTask}
-                draggedTaskId={draggedTaskId}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="max-w-3xl">
-            {LIST_SECTIONS.map(({ title, section }) => (
-              <ListViewSection
-                key={section}
-                title={title}
-                section={section}
-                tasks={tasks.filter(t => (t.listSection || 'today') === section)}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onToggleComplete={handleToggleComplete}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleListDrop}
-                draggedTaskId={draggedTaskId}
-              />
-            ))}
-          </div>
-        )}
-
-        <TaskDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          task={editingTask}
-          defaultStatus={defaultStatus}
-          onSave={handleSave}
-        />
-
-        {/* AI Chat Components */}
-        <AIChatToggle
-          onClick={() => setAiChatOpen(!aiChatOpen)}
-          isOpen={aiChatOpen}
-        />
-        <AIChat
-          isOpen={aiChatOpen}
-          onClose={() => setAiChatOpen(false)}
-          tasks={tasks}
-          projectName={project.name}
-          projectId={projectId}
-        />
       </div>
-    </div>
+    </>
   );
 };
 

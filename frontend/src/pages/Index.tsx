@@ -199,6 +199,7 @@
 
 import { ProjectCard } from '@/components/ProjectCard';
 import { ProjectDialog } from '@/components/ProjectDialog';
+import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects } from '@/contexts/ProjectContext';
@@ -326,57 +327,60 @@ const Index = () => {
 
   // Authenticated user dashboard
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h1 className="text-3xl font-light text-foreground mb-2">
-              Welcome back, {user?.name}!
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your projects and track your progress
-            </p>
-          </div>
-          <Button onClick={handleNewProject} className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Project
-          </Button>
-        </div>
-
-        {projects.length === 0 ? (
-          <div className="text-center py-24">
-            <div className="max-w-md mx-auto">
-              <h2 className="text-xl font-medium text-foreground mb-2">No projects yet</h2>
-              <p className="text-sm text-muted-foreground mb-8">
-                Create your first project to get started with organizing your tasks
+    <>
+      <DashboardHeader />
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h1 className="text-3xl font-light text-foreground mb-2">
+                Welcome back, {user?.name}!
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Manage your projects and track your progress
               </p>
-              <Button onClick={handleNewProject} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Create Project
-              </Button>
             </div>
+            <Button onClick={handleNewProject} className="gap-2">
+              <Plus className="h-4 w-4" />
+              New Project
+            </Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project._id}
-                project={project}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
 
-        <ProjectDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          project={editingProject}
-          onSave={handleSave}
-        />
+          {projects.length === 0 ? (
+            <div className="text-center py-24">
+              <div className="max-w-md mx-auto">
+                <h2 className="text-xl font-medium text-foreground mb-2">No projects yet</h2>
+                <p className="text-sm text-muted-foreground mb-8">
+                  Create your first project to get started with organizing your tasks
+                </p>
+                <Button onClick={handleNewProject} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create Project
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => (
+                <ProjectCard
+                  key={project._id}
+                  project={project}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
+
+          <ProjectDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            project={editingProject}
+            onSave={handleSave}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
