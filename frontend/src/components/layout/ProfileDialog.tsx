@@ -36,7 +36,7 @@ export const ProfileDialog = ({ open, onOpenChange }: ProfileDialogProps) => {
     }
 
     try {
-      await updateProfile(name.trim());
+      await updateProfile({ name: name.trim() });
       toast({
         title: 'Profile updated',
         description: 'Your profile has been updated successfully.',
