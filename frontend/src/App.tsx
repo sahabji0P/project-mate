@@ -53,6 +53,7 @@
 
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Footer } from './components/layout/Footer';
 import { Toaster } from './components/ui/toaster';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
@@ -71,34 +72,39 @@ function App() {
       <AuthProvider>
         <ProjectProvider>
           <TaskProvider>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+            <div className="min-h-screen flex flex-col">
+              <div className="flex-1">
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
 
-              {/* Protected Routes */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/board"
-                element={
-                  <ProtectedRoute>
-                    <TaskBoard />
-                  </ProtectedRoute>
-                }
-              />
+                  {/* Protected Routes */}
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/board"
+                    element={
+                      <ProtectedRoute>
+                        <TaskBoard />
+                      </ProtectedRoute>
+                    }
+                  />
 
-              {/* 404 Route */}
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-            <Toaster />
+                  {/* 404 Route */}
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </div>
+              <Footer />
+              <Toaster />
+            </div>
           </TaskProvider>
         </ProjectProvider>
       </AuthProvider>

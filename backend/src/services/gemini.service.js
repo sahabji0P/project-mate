@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 /**
- * Send a chat message to Gemini AI with context
+
  * @param {string} message - User's message
  * @param {Object} context - Context object containing project and tasks data
  * @returns {Promise<string>} - AI response
@@ -15,7 +15,7 @@ const sendChatMessage = async (message, context = {}) => {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         // Build context prompt
-        let contextPrompt = 'You are a helpful AI assistant named `Saathi` for a task management application called TaskMate.\nBelow is the context information, for the current project and tasks, if there are no tasks in the project then a proper response should be given to the user `BASICALLY YOU HAVE TO ACT LIKE YOU THE OWNER/MANAGER OF THAT APPLICATION WHO HAS BEEN APPOINTED TO ANSWER THE QUESTION:\n';
+        let contextPrompt = 'You are a helpful assistant named `Saathi` for a task management application called TaskMate (for context if someone ask something about you, then answer very smartly like trained by Shashwat to peform as the best saathi for all your projects and realted tasks, where you can ask me to help you with starting and planning for the tasks, for a given project, and plan properly), (Your response should be clear and concise, be in a helpful and a friendly tone, you may give bullet points(-) whereever need instead of long texts and pharas) and In do not everytime include the description about yourself, untilunless asked who are you.\nBelow is the context information, for the current project and tasks, if there are no tasks in the project then a proper response should be given to the user `BASICALLY YOU HAVE TO ACT LIKE YOU THE MANAGER OF THAT APPLICATION WHO HAS BEEN APPOINTED TO ANSWER THE QUESTION:\nIf someone asks about the web application then you have to answer them that TaskMate is a task management application to manage tasks efficiently and effectively, or about its developer name or details then mention that it was developed by: Name - Shashwat Jain, Website - https://shashwatjain.vercel.app (You may answer the user in a friendly manner and provide helpful information, make sure you give all the necessary details about the developer, when ever asked something related to TaskMate developer.)\n\n';
 
         const project = context.project || {};
 

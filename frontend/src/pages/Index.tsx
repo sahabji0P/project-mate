@@ -250,7 +250,7 @@ const Index = () => {
   // Landing page for non-authenticated users
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Hero Section */}
           <div className="text-center py-24">
@@ -329,7 +329,7 @@ const Index = () => {
   return (
     <>
       <DashboardHeader />
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="flex items-center justify-between mb-12">
             <div>

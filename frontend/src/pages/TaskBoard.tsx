@@ -49,7 +49,7 @@ const TaskBoard = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center py-24">
         <div className="text-center">
           <h2 className="text-xl font-medium text-foreground mb-4">Project not found</h2>
           <Button onClick={() => navigate('/')}>Back to Projects</Button>
@@ -187,7 +187,7 @@ const TaskBoard = () => {
         onAddTask={() => handleAddTask('todo')}
       />
 
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         <div
           className={`max-w-[1400px] mx-auto px-6 py-8 transition-all duration-300 ${aiChatOpen ? 'md:pr-[25rem]' : ''
             }`}
